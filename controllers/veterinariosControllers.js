@@ -83,8 +83,11 @@ const autenticar = async (req, res) => {
     }
     //comprobar el password con el metodo del modelo veterinario
     if (await usuario.comprobarPassword(password)) {
-
+        
         return res.status(200).json({
+            _id: usuario._id,
+            nombre: usuario.nombre,
+            email: usuario.email,
             token: generarJWT(usuario._id)
         })
     } else {
