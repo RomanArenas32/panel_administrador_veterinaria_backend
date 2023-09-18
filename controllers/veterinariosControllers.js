@@ -34,7 +34,7 @@ const registrar = async (req, res) => {
 const perfil = (req, res) => {
 
     const { veterinario } = req
-
+    
     res.json({
         veterinario
     })
@@ -69,6 +69,7 @@ const autenticar = async (req, res) => {
 
     //coomprobar si el usuario existe
     const usuario = await Veterinario.findOne({ email });
+    console.log(usuario)
     if (!usuario) {
         const error = new Error('USUARIO Y/O CONTRASEÑA INCORRECTAS')
         return res.status(403).json({
@@ -88,6 +89,8 @@ const autenticar = async (req, res) => {
             _id: usuario._id,
             nombre: usuario.nombre,
             email: usuario.email,
+            web: usuario.web,
+            telefono: usuario.telefono,
             token: generarJWT(usuario._id)
         })
     } else {
