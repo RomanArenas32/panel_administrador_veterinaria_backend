@@ -34,11 +34,43 @@ const registrar = async (req, res) => {
 const perfil = (req, res) => {
 
     const { veterinario } = req
-    
+
     res.json({
         veterinario
     })
 }
+const actualizarPerfil = async (req, res) => {
+    const veterinario = await Veterinario.findById(req.params.id);
+    if (!veterinario) {
+        const error = new Error("El elemento no fue encontrado, intente mas tarde");
+        return res.status(400).json({ msg: error.message });
+    }
+    const { email } = req.body;
+    if (veterinario.email !== email) {
+        const existeEmail = await Veterinario.findOne({ email });
+        if (existeEmail) {
+            const error = new Error("Este email ya esta en uso");
+            return res.status(400).json({ msg: error.message });
+        }
+    }
+
+    try {
+        veterinario.nombre = req.body.nombre;
+        veterinario.web = req.body.web;
+        veterinario.telefono = req.body.telefono;
+        veterinario.email = req.body.email;
+
+
+        const veterinarioActualizado = await veterinario.save();
+
+        res.status(200).json(veterinarioActualizado)
+
+    } catch (error) {
+        console.log(error)
+    }
+
+
+};
 
 const confirmar = async (req, res) => {
     const { token } = req.params;
@@ -69,7 +101,7 @@ const autenticar = async (req, res) => {
 
     //coomprobar si el usuario existe
     const usuario = await Veterinario.findOne({ email });
-    console.log(usuario)
+
     if (!usuario) {
         const error = new Error('USUARIO Y/O CONTRASEÑA INCORRECTAS')
         return res.status(403).json({
@@ -84,7 +116,7 @@ const autenticar = async (req, res) => {
     }
     //comprobar el password con el metodo del modelo veterinario
     if (await usuario.comprobarPassword(password)) {
-        
+
         return res.status(200).json({
             _id: usuario._id,
             nombre: usuario.nombre,
@@ -165,7 +197,28 @@ const nuevoPassword = async (req, res) => {
         return res.status(400).json({ msg: err.message })
     }
 }
+const actualizarPassword = async (req, res) => {
+    const { id } = req.veterinario;
+    const { psw_actual, psw_nuevo } = req.body;
+    console.log(id, psw_actual, psw_nuevo);
 
+    const veterinario = await Veterinario.findById(id);
+    if (!veterinario) {
+        const error = new Error("El elemento no fue encontrado, intente mas tarde");
+        return res.status(400).json({ msg: error.message });
+    }
+    if (await veterinario.comprobarPassword(psw_actual)) {
+
+        veterinario.password = psw_nuevo;
+        await veterinario.save();
+        res.json({msg: "Almacenado correctamente"})
+    }
+    else {
+        const error = new Error("Credenciales incorrectas");
+        return res.status(400).json({ msg: error.message });
+    }
+
+}
 export {
     registrar,
     perfil,
@@ -173,5 +226,7 @@ export {
     autenticar,
     olvidePassword,
     comprobarToken,
-    nuevoPassword
+    nuevoPassword,
+    actualizarPerfil,
+    actualizarPassword
 };

@@ -1,5 +1,5 @@
 import express from 'express';
-import  {perfil, registrar, confirmar, autenticar, olvidePassword, comprobarToken, nuevoPassword}  from '../controllers/veterinariosControllers.js';
+import  {perfil, registrar, confirmar, autenticar, olvidePassword, comprobarToken, nuevoPassword, actualizarPerfil, actualizarPassword}  from '../controllers/veterinariosControllers.js';
 const router = express.Router();
 import checkAuth from '../middleware/authMiddleware.js';
 
@@ -14,5 +14,8 @@ router.post('/olvide-password/:token', nuevoPassword);
 
 //rutas privadas
 router.get('/perfil', checkAuth, perfil );
+router.put('/perfil/:id', checkAuth, actualizarPerfil );
+
+router.put('/actualizar-password', checkAuth, actualizarPassword );
 
 export default router;
